@@ -11,7 +11,7 @@ namespace DojoPartie2.Models
     {
         public Samourai Samourai { get; set; }
         public List<Arme> Armes { get; set; }
-        public List<SelectListItem> ArtMartials { get; set; }
+        public List<ArtMartial> ArtMartials { get; set; } = new List<ArtMartial>();
         public List<int> IdArtMartials { get; set; }
         public int? IdSelectedArme { get; set; }
     }

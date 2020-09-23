@@ -43,6 +43,7 @@ namespace TPModule6_1.Controllers
         {
             SamouraiViewModel vm = new SamouraiViewModel();
             vm.Armes = db.Armes.ToList();
+            vm.ArtMartials = db.ArtMartials.ToList();
             return View(vm);
         }
 
@@ -59,7 +60,12 @@ namespace TPModule6_1.Controllers
                 {
                     vm.Samourai.Arme = db.Armes.Find(vm.IdSelectedArme);
                 }
-                
+
+                if (vm.IdArtMartials != null)
+                {
+                    vm.Samourai.ArtMartials = db.ArtMartials.Where(x => vm.IdArtMartials.Contains(x.Id)).ToList();
+                }
+
                 db.Samourais.Add(vm.Samourai);
                 db.SaveChanges();
                 return RedirectToAction("Index");
