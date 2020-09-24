@@ -31,6 +31,7 @@ namespace TPModule6_1.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
             Samourai samourai = db.Samourais.Find(id);
+            
             if (samourai == null)
             {
                 return HttpNotFound();
@@ -56,22 +57,26 @@ namespace TPModule6_1.Controllers
         {
             if (ModelState.IsValid)
             {
+                //Inclide(x => x.Arme) récupère l'arme en mode Eager
+                var currentSamourai = db.Samourais.Include(x => x.Arme).FirstOrDefault(x => x.Id == vm.Samourai.Id);
+                //currentSamourai.Force = vm.Samourai.Force;
+                //currentSamourai.Nom = vm.Samourai.Nom;
+                currentSamourai.CopyIn(vm.Samourai);
+
                 if (vm.IdSelectedArme != null)
                 {
-                    vm.Samourai.Arme = db.Armes.Find(vm.IdSelectedArme);
+                    currentSamourai.Arme = db.Armes.FirstOrDefault(x => x.Id == vm.IdSelectedArme);
                 }
-
-                if (vm.IdArtMartials != null)
+                else
                 {
-                    vm.Samourai.ArtMartials = db.ArtMartials.Where(x => vm.IdArtMartials.Contains(x.Id)).ToList();
+                    currentSamourai.Arme = null;
                 }
 
-                db.Samourais.Add(vm.Samourai);
+                db.Entry(currentSamourai).State = EntityState.Modified;
                 db.SaveChanges();
+
                 return RedirectToAction("Index");
             }
-
-            vm.Armes = db.Armes.ToList();
 
             return View(vm);
         }
@@ -86,16 +91,24 @@ namespace TPModule6_1.Controllers
             SamouraiViewModel vm = new SamouraiViewModel();
             //vm.Samourai = db.Samourais.Include(x => x.Arme).FirstOrDefault(x => x.Id == id);
             vm.Samourai = db.Samourais.Find(id);
+            vm.Armes = db.Armes.ToList();
+            vm.ArtMartials = db.ArtMartials.ToList();
+
             if (vm.Samourai == null)
             {
                 return HttpNotFound();
             }
-
-            vm.Armes = db.Armes.ToList();
+            
             if (vm.Samourai.Arme != null)
             {
                 vm.IdSelectedArme = vm.Samourai.Arme.Id;
             }
+
+            if (vm.Samourai.ArtMartials != null)
+            {
+                vm.IdArtMartials = vm.Samourai.ArtMartials.Select(x => x.Id).ToList();
+            }
+
 
             return View(vm);
         }
@@ -110,14 +123,24 @@ namespace TPModule6_1.Controllers
             if (ModelState.IsValid)
             {
                 //Inclide(x => x.Arme) récupère l'arme en mode Eager
-                var currentSamourai = db.Samourais.Include(x => x.Arme).FirstOrDefault(x => x.Id == vm.Samourai.Id);
-                //currentSamourai.Force = vm.Samourai.Force;
-                //currentSamourai.Nom = vm.Samourai.Nom;
-                currentSamourai.CopyIn(vm.Samourai);
+                var currentSamourai = db.Samourais.Include(x => x.Arme).Include(x => x.ArtMartials).FirstOrDefault(x => x.Id == vm.Samourai.Id);
+                currentSamourai.Force = vm.Samourai.Force;
+                currentSamourai.Nom = vm.Samourai.Nom;
+
+                //currentSamourai.CopyIn(vm.Samourai);
 
                 if (vm.IdSelectedArme != null)
                 {
                     currentSamourai.Arme = db.Armes.FirstOrDefault(x => x.Id == vm.IdSelectedArme);
+                }
+                else
+                {
+                    currentSamourai.Arme = null;
+                }
+
+                if (vm.IdArtMartials != null)
+                {
+                    currentSamourai.ArtMartials = db.ArtMartials.Where(x => vm.IdArtMartials.Contains(x.Id)).ToList();
                 }
                 else
                 {

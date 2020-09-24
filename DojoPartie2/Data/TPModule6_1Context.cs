@@ -25,5 +25,10 @@ namespace TPModule6_1.Data
         public System.Data.Entity.DbSet<Samourai> Samourais { get; set; }
 
         public System.Data.Entity.DbSet<ArtMartial> ArtMartials { get; set; }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Samourai>().HasMany(x => x.ArtMartials).WithMany();
+        }
     }
 }
