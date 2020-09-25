@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System.Collections.Generic;
+using System.Data;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
@@ -116,10 +117,16 @@ namespace TPModule6_1.Controllers
                 item.Arme = null;
                 db.Entry(item).State = EntityState.Modified;
             }
-
-            db.Armes.Remove(arme);
-            db.SaveChanges();
-            return RedirectToAction("Index");
+            List<int> ids = db.Samourais.Include(x => x.Arme).Where(x => x.Arme != null).Select(x => x.Arme.Id).ToList();
+            if (ids.Contains(id))
+            {
+                ModelState.AddModelError("", "Cette arme ne peut pas être supprimé parce qu'elle appartient au samourai \"" + db.Samourais.FirstOrDefault(x => x.Arme.Id == id).Nom + "\"");
+                return View();
+            } else { 
+                db.Armes.Remove(arme);
+                db.SaveChanges();
+                return RedirectToAction("Index");
+            }
         }
 
         protected override void Dispose(bool disposing)

@@ -97,7 +97,7 @@ namespace TPModule6_1.Controllers
             SamouraiViewModel vm = new SamouraiViewModel();
             //vm.Samourai = db.Samourais.Include(x => x.Arme).FirstOrDefault(x => x.Id == id);
             vm.Samourai = db.Samourais.Find(id);
-            vm.Armes = db.Armes.ToList();
+            vm.Armes = db.Armes.Where(x => !db.Samourais.Where(z => z.Id != vm.Samourai.Id).Select(y => y.Arme.Id).Contains(x.Id)).ToList();
             vm.ArtMartials = db.ArtMartials.ToList();
 
             if (vm.Samourai == null)
